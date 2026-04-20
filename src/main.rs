@@ -4,6 +4,7 @@ use gix;
 
 use crate::is_sudo::check;
 mod is_sudo;
+mod daemon;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -31,6 +32,12 @@ enum Commands
         path: PathBuf,
     },
 
+    /// Start daemon
+    Up,
+    
+    /// Stop daemon
+    Down,
+
     /// List all registered repositories
     List,
 
@@ -38,13 +45,43 @@ enum Commands
 
 
 
+enum Features 
+{
+    AutoCommit = 0x01,
+    AutoPush = 0x02,
+    AutoPull = 0x04
+}
+
+struct Registry
+{
+
+        name: String,
+        path: PathBuf,
+        excluded_features: u8,
+
+}
+
+
 
 fn main()
 {
 
-    let args= Cli::parse();
+    let args = Cli::parse();
 
+    let ragud = daemon::Ragud::new(); 
 
+    if let Some(cmd) = args.command
+    {
+        
+
+        match cmd {
+            Commands::List => {},
+            Commands::Register{path} => {register(&path);},
+            _ => {exit(1)}
+        }
+    
+
+    }
 }
 
 
@@ -65,4 +102,25 @@ fn expand_tilde(path: &str) -> String
 
     
     return path.to_string();
+}
+
+
+fn register(dir: &PathBuf)
+{
+
+    let repo = match gix::open(dir)
+    {
+        Ok(r) => r,
+        Err(_) => exit(1),
+    };
+
+    
+}
+
+
+
+fn unregister()
+{
+
+
 }
